@@ -1,0 +1,143 @@
+
+# Data Exploration and Standarisation
+
+attach(South_East)
+DataC1 <-data.frame(pBurglary, pCriminal.Damage,pRobbery,pOther.Theft.Offences,pViolence.against.person,pCriminal.Damage,
+pother.Offences,pOffences.against.vehicles,pDom_Build,pNon_Dom_Build , pRoad ,pPath,pDom_Gard, pGreen )
+
+
+# Correlation matrix 
+
+cor.matrix<-cor(Data_C1, use="complete.obs", method="spearman")
+
+print(cor.df, digits=3)
+
+
+# Remove variablesd which less significent - Other theft offences , Violence against person, Road, path , Domestic garden and other offences
+
+
+DataC2 <-data.frame(pBurglary, pCriminal.Damage,pRobbery,pCriminal.Damage, pOffences.against.vehicles,pDom_Build,pNon_Dom_Build ,pGreen )
+
+
+# Correlation matrix
+cor.matrix<-cor(DataC2, use="complete.obs", method="spearman")
+
+print(cor.df, digits=3)
+
+
+#Calculate Eigen values on 6 variables used for clustering
+
+#Screeplot and Cumulative percentage variance.
+ev <- eigen(cor(DataC2))
+ev$values
+
+#Plot a scree plot of eigenvalues
+
+plot(ev$values, type="b", col= "blue", xlab="variables")
+
+ #Calculate cumulative proportion of eigenvalue and plot
+
+ev.sum<-0
+for(i in 1:length(ev$value)){
+}
+ev.list1<-1:length(ev$value)
+ev.sum<-ev.sum+ev$value[i]
+for(i in 1:length(ev$value)){
+ ev.list1[i]=ev$value[i]/ev.sum
+ }
+ev.list2<-1:length(ev$value)
+ev.list2[1]<-ev.list1[1]
+for(i in 2:length(ev$value)){
+ev.list2[i]=ev.list2[i-1]+ev.list1[i]
+}
+
+
+plot (ev.list2, type="b", col= "red", xlab="number of components", ylab ="cumulative proportion")
+
+
+hist(DataC2)
+
+# Principal Components Analysis (PCA)
+
+fit <- principal(DataC2, nfactors=4, rotate="varimax")
+
+fit
+
+#Remove PGreen variables
+
+> DataC3 <-data.frame(pBurglary, pCriminal.Damage,pRobbery,pCriminal.Damage, pOffences.against.vehicles,pDom_Build,pNon_Dom_Build )
+
+
+cor.matrix<-cor(DataC3, use="complete.obs", method="spearman")
+cor.df <-as.data.frame(cor.matrix)
+print(cor.df, digits=3)
+
+
+#Eigen values from the correlation matrix of 7 variables.
+#Screeplot and Cumulative percentage variance.
+
+ev <- eigen(cor(DataC3))
+
+ev$values
+
+
+#Plot a scree plot of eigenvalues
+
+plot(ev$values, type="b", col= "blue", xlab="variables")
+
+#Calculate cumulative proportion of eigenvalue and plot
+ev.sum<-0
+for(i in 1:length(ev$value)){
+ ev.sum<-ev.sum+ev$value[i]
+ }
+ev.list1<-1:length(ev$value)
+for(i in 1:length(ev$value)){
+ev.list1[i]=ev$value[i]/ev.sum
+ }
+ ev.list2<-1:length(ev$value)
+ ev.list2[1]<-ev.list1[1]
+for(i in 2:length(ev$value)){
+ ev.list2[i]=ev.list2[i-1]+ev.list1[i]
+}
+
+plot (ev.list2, type="b", col= "red", xlab="number of components", ylab ="cumulative proportion")
+
+# Principal Components Analysis (PCA)
+
+fit <- principal(DataC3, nfactors=3, rotate="varimax")
+
+fit
+
+
+#cluster analysis using K-mean
+
+#prepare the data removing any missing cases and scaling all the variables in range 0 to 1 
+
+DataC3 <- apply(DataC3 , MARGIN =2 , FUN =function(X)(X-min(X))/diff(range(X)))
+
+fit <- kmeans(DataC3, 4) # 4 cluster solution
+
+
+aggregate(DataC3,by=list(fit$cluster),FUN=mean)
+
+plot(fit) # display dendogram
+
+groups <- cutree(fit, k=4) # cut tree into 4 clusters
+
+# Dendogram (4 clusters)
+
+rect.hclust(fit, k=4, border="red")
+
+> # assign cluster number to borough name
+> mydataC3 <- data.frame(South_East$Code)
+> mydataC3 <- within (mydataC3, Name <- South_East$Name)
+> mydataC3 <- within (mydataC3, cluster <- groups)
+> mydataC3
+
+
+
+
+
+
+
+
